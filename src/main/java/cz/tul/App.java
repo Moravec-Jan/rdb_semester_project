@@ -1,10 +1,8 @@
 package cz.tul;
 
 import cz.tul.model.Projeti;
-import cz.tul.repository.AutoRepository;
-import cz.tul.repository.BranaRepository;
 import cz.tul.repository.ProjetiRepository;
-import cz.tul.repository.RidicRepository;
+import cz.tul.service.ProjetiService;
 import cz.tul.utils.CsvParser;
 import cz.tul.utils.Parser;
 import org.apache.hadoop.conf.Configuration;
@@ -46,6 +44,17 @@ public class App {
             hbase();
             return;
         }
+        List<Projeti> projeti = parseDataFromFile();
+        SpringApplication app = new SpringApplication(App.class);
+        ApplicationContext ctx = app.run(args);
+        ProjetiService projetiService = ctx.getBean(ProjetiService.class);
+        ProjetiRepository projetiRepository = ctx.getBean(ProjetiRepository.class);
+        projetiService.saveWholeRecords(projeti);
+        Iterable<Projeti> all = projetiRepository.findAll();
+        System.out.println("");
+    }
+
+    private static List<Projeti> parseDataFromFile() {
         List<Projeti> projeti = null;
         try {
             URL url = App.class.getClassLoader().getResource("sample_data.csv");
@@ -56,28 +65,7 @@ public class App {
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
-
-
-        SpringApplication app = new SpringApplication(App.class);
-        ApplicationContext ctx = app.run(args);
-        AutoRepository autoRepository = ctx.getBean(AutoRepository.class);
-        RidicRepository ridicRepository = ctx.getBean(RidicRepository.class);
-        BranaRepository branaRepository = ctx.getBean(BranaRepository.class);
-        ProjetiRepository projetiRepository = ctx.getBean(ProjetiRepository.class);
-        if (projeti != null) {
-            projeti.forEach(projeti1 -> {
-                ridicRepository.save(projeti1.getCrp_ridic());
-                autoRepository.save(projeti1.getSpz_auto());
-                branaRepository.save(projeti1.getId_brana());
-                projetiRepository.save(projeti1);
-            });
-        }
-
-        Iterable<Projeti> all = projetiRepository.findAll();
-        System.out.println("");
-//        List<String> strings = carDao.getAll();
-//        System.out.println(carDao.getAll());
-
+        return projeti;
     }
 
     public static void hbase() {
