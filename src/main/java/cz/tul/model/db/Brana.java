@@ -1,4 +1,4 @@
-package cz.tul.model;
+package cz.tul.model.db;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

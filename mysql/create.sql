@@ -1,4 +1,3 @@
-
 CREATE TABLE Auto
 (
     spz CHAR(8),
@@ -30,7 +29,6 @@ CREATE TABLE Brana
 
 CREATE TABLE Projeti
 (
-	id_projeti INT AUTO_INCREMENT,
 	cas TIMESTAMP NOT NULL,
     najeto INT UNSIGNED NOT NULL,
     benzin INT UNSIGNED NOT NULL,
@@ -39,7 +37,7 @@ CREATE TABLE Projeti
     id_brana CHAR(10),
     spz_auto CHAR(8),
     
-    PRIMARY KEY (id_projeti,crp_ridic)
+    PRIMARY KEY (cas,crp_ridic)
 );
 
 

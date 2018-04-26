@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+
+<AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="720.0" minWidth="1280.0" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.tul.controller.MainController">
+    <children>
+        <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <menus>
+                <Menu mnemonicParsing="false" text="Soubor">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#importData" text="Import" />
+                        <MenuItem mnemonicParsing="false" onAction="#exportData" text="Export" />
+                        <MenuItem mnemonicParsing="false" onAction="#exit" text="Close" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+      <StackPane layoutY="25.0" prefHeight="375.0" prefWidth="600.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+         <children>
+            <ProgressBar fx:id="progressBar" prefHeight="25.0" prefWidth="120.0" progress="0.0" StackPane.alignment="CENTER" />
+         </children>
+      </StackPane>
+      <AnchorPane fx:id="innerPane" layoutY="25.0" prefHeight="377.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+         <children>
+            <ChoiceBox fx:id="select" layoutX="38.0" layoutY="36.0" prefHeight="25.0" prefWidth="215.0" />
+            <Label layoutX="38.0" layoutY="19.0" prefHeight="17.0" prefWidth="149.0" text="Vybrat" />
+            <VBox fx:id="exportStatusPanel" layoutX="1142.0" layoutY="8.0" prefHeight="90.0" prefWidth="100.0">
+               <children>
+                  <Label alignment="CENTER" prefHeight="27.0" prefWidth="100.0" text="Exportování" />
+                  <ProgressIndicator fx:id="exportProgressBar" progress="0.0">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </ProgressIndicator>
+               </children>
+            </VBox>
+            <HBox fx:id="selectPanel1" layoutX="300.0" layoutY="19.0" prefHeight="44.0" prefWidth="451.0" visible="false">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="96.0" text="Brána" />
+                        <TextField fx:id="gate" prefHeight="25.0" prefWidth="96.0" text="UUUUUUUUUU" />
+                     </children>
+                  </VBox>
+                  <Button mnemonicParsing="false" onAction="#onFindByGate" text="Vyhledat">
+                     <HBox.margin>
+                        <Insets left="20.0" top="17.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <HBox fx:id="selectPanel2" layoutX="300.0" layoutY="19.0" prefHeight="72.0" prefWidth="435.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="96.0" text="Od " />
+                        <DatePicker fx:id="from_date" />
+                        <TextField fx:id="from_time" text="06:30">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="96.0" text="Do" />
+                        <DatePicker fx:id="to_date" />
+                        <TextField fx:id="to_time" text="23:00">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label alignment="TOP_LEFT" prefHeight="17.0" prefWidth="101.0" text="Ujeto kilometrů" />
+                        <TextField fx:id="kilometers" text="10" />
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <Button mnemonicParsing="false" onAction="#onSecondSelectClick" text="Vyhledat">
+                     <HBox.margin>
+                        <Insets left="20.0" top="17.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <ScrollPane layoutX="38.0" layoutY="108.0" prefHeight="558.0" prefWidth="1204.0" AnchorPane.leftAnchor="38.0" AnchorPane.rightAnchor="38.0" AnchorPane.topAnchor="108.0">
+               <content>
+                  <TableView fx:id="table" prefHeight="556.0" prefWidth="1202.0">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
+                    </columns>
+                  </TableView>
+               </content>
+            </ScrollPane>
+         </children>
+      </AnchorPane>
+    </children>
+</AnchorPane>

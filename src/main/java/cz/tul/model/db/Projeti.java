@@ -1,7 +1,6 @@
-package cz.tul.model;
+package cz.tul.model.db;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
@@ -19,15 +18,15 @@ public class Projeti {
     @Id
     @ManyToOne
     @JoinColumn(name = "crp_ridic")
-    private Ridic crp_ridic;
+    private Ridic ridic;
 
     @ManyToOne
     @JoinColumn(name = "id_brana")
-    private Brana id_brana;
+    private Brana brana;
 
     @ManyToOne
     @JoinColumn(name = "spz_auto")
-    private Auto spz_auto;
+    private Auto auto;
 
 //    @Override
 //    public boolean equals(Object obj) {
@@ -42,14 +41,14 @@ public class Projeti {
     public Projeti() {
     }
 
-    public Projeti(Timestamp cas, int najeto, int benzin, float napeti, Ridic crp_ridic, Brana id_brana, Auto spz_auto) {
+    public Projeti(Timestamp cas, int najeto, int benzin, float napeti, Ridic ridic, Brana id_brana, Auto spz_auto) {
         this.cas = cas;
         this.najeto = najeto;
         this.benzin = benzin;
         this.napeti = napeti;
-        this.crp_ridic = crp_ridic;
-        this.id_brana = id_brana;
-        this.spz_auto = spz_auto;
+        this.ridic = ridic;
+        this.brana = id_brana;
+        this.auto = spz_auto;
     }
 
     public Timestamp getCas() {
@@ -68,15 +67,15 @@ public class Projeti {
         return napeti;
     }
 
-    public Ridic getCrp_ridic() {
-        return crp_ridic;
+    public Ridic getRidic() {
+        return ridic;
     }
 
-    public Brana getId_brana() {
-        return id_brana;
+    public Brana getBrana() {
+        return brana;
     }
 
-    public Auto getSpz_auto() {
-        return spz_auto;
+    public Auto getAuto() {
+        return auto;
     }
 }

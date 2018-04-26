@@ -1,10 +1,13 @@
 package cz.tul;
 
-import cz.tul.model.Projeti;
-import cz.tul.repository.ProjetiRepository;
-import cz.tul.service.ProjetiService;
+import cz.tul.controller.MainController;
+import cz.tul.model.db.Projeti;
+import cz.tul.utils.CsvCreator;
 import cz.tul.utils.CsvParser;
 import cz.tul.utils.Parser;
+import cz.tul.utils.ProjetiCsvCreater;
+import javafx.application.Application;
+import javafx.stage.Stage;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -17,6 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
 
 import java.io.FileReader;
@@ -26,33 +30,49 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 
 @EntityScan("cz.tul.model")
 @SpringBootApplication
-public class App {
+public class App extends Application {
     private static boolean hbase = false;
 
+    private ApplicationContext springContext;
+
+    @Bean
+    public CsvCreator<Projeti> getCreater() {
+        return new ProjetiCsvCreater();
+    }
+
+    @Profile("hbase")
     @Bean
     public HbaseTemplate hbaseTemplate() {
         org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
         return new HbaseTemplate(conf);
     }
 
+
     public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void init() {
         if (hbase) {
             hbase();
             return;
         }
-        List<Projeti> projeti = parseDataFromFile();
-        SpringApplication app = new SpringApplication(App.class);
-        ApplicationContext ctx = app.run(args);
-        ProjetiService projetiService = ctx.getBean(ProjetiService.class);
-        ProjetiRepository projetiRepository = ctx.getBean(ProjetiRepository.class);
-        projetiService.saveWholeRecords(projeti);
-        Iterable<Projeti> all = projetiRepository.findAll();
-        System.out.println("");
+
+        SpringApplication springApplication = new SpringApplication(App.class);
+        springContext = springApplication.run();
     }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Objects.requireNonNull(MainController.createNewStage(springContext)).show();
+    }
+
 
     private static List<Projeti> parseDataFromFile() {
         List<Projeti> projeti = null;
@@ -68,7 +88,7 @@ public class App {
         return projeti;
     }
 
-    public static void hbase() {
+    private static void hbase() {
 
         Configuration conf = org.apache.hadoop.hbase.HBaseConfiguration.create();
         org.apache.hadoop.hbase.client.Connection conn = null;
@@ -111,5 +131,9 @@ public class App {
             e.printStackTrace();
         }
         System.out.println(r);
+    }
+
+    public static URL getLayoutResource(String fileName) {
+        return App.class.getClassLoader().getResource("layout/" + fileName);
     }
 }

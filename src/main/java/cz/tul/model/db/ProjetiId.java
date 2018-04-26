@@ -1,9 +1,9 @@
-package cz.tul.model;
+package cz.tul.model.db;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class ProjetiId implements Serializable {
     Timestamp cas;
-    String crp_ridic;
+    String ridic;
 }
