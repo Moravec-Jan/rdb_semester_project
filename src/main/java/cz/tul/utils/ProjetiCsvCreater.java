@@ -1,15 +1,15 @@
 package cz.tul.utils;
 
-import cz.tul.model.db.Projeti;
+import cz.tul.model.mysql.ProjetiMysql;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjetiCsvCreater implements CsvCreator<Projeti> {
+public class ProjetiCsvCreater implements CsvCreator<ProjetiMysql> {
 
     @Override
-    public List<String> create(List<Projeti> data) {
+    public List<String> create(List<ProjetiMysql> data) {
         List<String> lines = new ArrayList<>();
         data.forEach(object -> {
             StringBuilder stringBuilder = new StringBuilder();

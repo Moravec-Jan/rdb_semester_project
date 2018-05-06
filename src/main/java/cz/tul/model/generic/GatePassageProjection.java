@@ -1,4 +1,4 @@
-package cz.tul.model.db.projections;
+package cz.tul.model.generic;
 
 import java.sql.Timestamp;
 

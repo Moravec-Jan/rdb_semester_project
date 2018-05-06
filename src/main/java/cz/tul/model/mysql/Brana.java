@@ -1,9 +1,13 @@
-package cz.tul.model.db;
+package cz.tul.model.mysql;
+
+import org.springframework.context.annotation.Profile;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+// valid gate longtitude is from 35 to 70 and latitude from -25 to 105
+@Profile("mysql")
 @Entity
 @Table(name = Brana.TABLE_NAME)
 public class Brana {
@@ -15,6 +19,7 @@ public class Brana {
     private float latitude;
     private float cena;
     private String typ;
+
 
     public Brana() {
     }
@@ -49,5 +54,9 @@ public class Brana {
 
     public String getTyp() {
         return typ;
+    }
+
+    public static boolean validate(float longtitude, float latitude) {
+        return longtitude >= 35 && longtitude <= 70 && latitude >= -25 && longtitude <= 105;
     }
 }

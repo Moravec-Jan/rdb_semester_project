@@ -1,10 +1,10 @@
 package cz.tul.controller;
 
 import cz.tul.App;
-import cz.tul.model.db.Projeti;
+import cz.tul.model.generic.InvalidRecords;
 import cz.tul.model.ui.BranaTableEntity;
 import cz.tul.model.ui.RidicEntity;
-import cz.tul.model.db.projections.GatePassageProjection;
+import cz.tul.model.generic.GatePassageProjection;
 import cz.tul.service.DatabaseService;
 import cz.tul.task.ExportToFileTask;
 import cz.tul.task.ImportFileTask;
@@ -40,8 +40,6 @@ import java.util.List;
 public class MainController {
 
     @FXML
-    private AnchorPane pane;
-    @FXML
     private AnchorPane innerPane;
     @FXML
     private ProgressBar progressBar;
@@ -69,6 +67,17 @@ public class MainController {
     private VBox exportStatusPanel;
     @FXML
     private ProgressIndicator exportProgressBar;
+    @FXML
+    private VBox importReportPanel;
+    @FXML
+    private Label invalidRecordsLabel;
+    @FXML
+    private MenuItem hbaseMenuItem;
+    @FXML
+    private MenuItem mongoMenuItem;
+    @FXML
+    private MenuItem mysqlMenuItem;
+
     @Autowired
     DatabaseService service;
 
@@ -101,8 +110,45 @@ public class MainController {
         Platform.exit();
     }
 
+    public void setHbase() {
+        System.setProperty("spring.profiles.active", "hbase");
+        stage.close();
+        App.getInstance().restart();
+    }
+
+    public void setMongo() {
+        System.setProperty("spring.profiles.active", "mongo");
+        stage.close();
+        App.getInstance().restart();
+    }
+
+    public void setMysql() {
+        System.setProperty("spring.profiles.active", "mysql");
+        stage.close();
+        App.getInstance().restart();
+    }
+
     public void initialize() {
+        String property = System.getProperty("spring.profiles.active");
+        switch (property) {
+            case "mongo":
+                mongoMenuItem.setStyle("-fx-font-weight: bold");
+                mysqlMenuItem.setStyle("");
+                hbaseMenuItem.setStyle("");
+                break;
+            case "mysql":
+                mongoMenuItem.setStyle("");
+                mysqlMenuItem.setStyle("-fx-font-weight: bold");
+                hbaseMenuItem.setStyle("");
+                break;
+            case "hbase":
+                mongoMenuItem.setStyle("");
+                mysqlMenuItem.setStyle("");
+                hbaseMenuItem.setStyle("-fx-font-weight: bold");
+                break;
+        }
         exportStatusPanel.setVisible(false);
+        importReportPanel.setVisible(false);
         select.getItems().add(0, "Průjezdy bránou");
         select.getItems().add(1, "Kdo neprojel satelitní bránou");
         select.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -117,35 +163,50 @@ public class MainController {
                     break;
             }
         });
+
         select.getSelectionModel().select(0);
         table.getColumns().clear();
         table.getItems().clear();
-        from_date.setValue(LocalDate.parse("2018-03-26"));
-        to_date.setValue(LocalDate.parse("2018-04-23"));
-        from_time.setText("06:30:00.0");
-        to_time.setText("23:59:59.0");
+        from_date.setValue(LocalDate.parse("2018-04-24"));
+        to_date.setValue(LocalDate.parse("2018-04-24"));
+        from_time.setText("06:00:00.0");
+        to_time.setText("10:00:00.0");
     }
 
     //D:\Moje dokumenty\skola\RDB\projekt\src\main\resources
     public void importData() {
-        service.deleteAll();
-        Iterable<Projeti> all = service.getAll();
-
-
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Cvs file", "*.csv"));
+        chooser.setInitialDirectory(new File("D:\\Moje dokumenty\\skola\\RDB\\projekt\\src\\main\\resources"));
         File file = chooser.showOpenDialog(stage);
         if (file != null) {
-            ImportFileTask task = new ImportFileTask(service, new File("D:\\Moje dokumenty\\skola\\RDB\\projekt\\src\\main\\resources\\sample_data.csv"));
+            service.deleteAll();
+            ImportFileTask task = new ImportFileTask(service, file);
             setProgressBarVisibility(progressBar, true);
             innerPane.setVisible(false);
             progressBar.progressProperty().bind(task.progressProperty());
             task.addEventHandler(WorkerStateEvent.ANY, event -> {
                 if (event.getEventType().equals(WorkerStateEvent.WORKER_STATE_SUCCEEDED)) {
                     onDataLoaded();
+                    showReport();
                 }
             });
             new Thread(task).start();
+        }
+    }
+
+    private void showReport() {
+        try {
+            Iterable<? extends InvalidRecords> invalidRecordsReport = service.getInvalidRecordsReport();
+            if (!invalidRecordsReport.iterator().hasNext())
+                return;
+
+            invalidRecordsLabel.setText(String.valueOf(invalidRecordsReport.iterator().next().getPocet()));
+            exportStatusPanel.setVisible(false);
+            importReportPanel.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
         }
     }
 
@@ -154,18 +215,8 @@ public class MainController {
     }
 
     private void onDataLoaded() {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.getLayoutResource("body.fxml"));
-        AnchorPane body;
         setProgressBarVisibility(progressBar, false);
         innerPane.setVisible(true);
-        try {
-            body = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        body.prefWidthProperty().bind(pane.widthProperty());
-        body.prefHeightProperty().bind(pane.heightProperty());
     }
 
     public void onFindByGate() {
@@ -241,6 +292,8 @@ public class MainController {
     }
 
     private void setDriverTableData(List<RidicEntity> data) {
+        if (data == null)
+            return;
         table.getItems().clear();
         ObservableList<RidicEntity> drivers = FXCollections.observableArrayList();
         drivers.addAll(data);
@@ -281,6 +334,7 @@ public class MainController {
             ExportToFileTask task = new ExportToFileTask(file, items, creator);
             exportProgressBar.progressProperty().bind(task.progressProperty());
             exportStatusPanel.setVisible(true);
+            importReportPanel.setVisible(false);
             task.addEventHandler(WorkerStateEvent.ANY, event -> {
                 if (event.getEventType().equals(WorkerStateEvent.WORKER_STATE_SUCCEEDED)) {
                     //exportStatusPanel.setVisible(false);

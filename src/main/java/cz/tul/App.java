@@ -1,7 +1,8 @@
 package cz.tul;
 
 import cz.tul.controller.MainController;
-import cz.tul.model.db.Projeti;
+import cz.tul.model.generic.Projeti;
+import cz.tul.model.mysql.ProjetiMysql;
 import cz.tul.utils.CsvCreator;
 import cz.tul.utils.CsvParser;
 import cz.tul.utils.Parser;
@@ -15,13 +16,16 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,16 +36,20 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
-
+@EnableTransactionManagement
 @EntityScan("cz.tul.model")
 @SpringBootApplication
 public class App extends Application {
+    private static App instance;
+
     private static boolean hbase = false;
 
     private ApplicationContext springContext;
 
+    private static final String defaultProfile = "mysql";
+
     @Bean
-    public CsvCreator<Projeti> getCreater() {
+    public CsvCreator<ProjetiMysql> getCreater() {
         return new ProjetiCsvCreater();
     }
 
@@ -52,6 +60,10 @@ public class App extends Application {
         return new HbaseTemplate(conf);
     }
 
+    public static App getInstance() {
+        return instance;
+    }
+
 
     public static void main(String[] args) {
         launch(args);
@@ -59,33 +71,29 @@ public class App extends Application {
 
     @Override
     public void init() {
+        instance = this;
+
         if (hbase) {
             hbase();
             return;
         }
-
+        if (System.getProperty("spring.profiles.active") == null)
+            System.setProperty("spring.profiles.active", defaultProfile);
         SpringApplication springApplication = new SpringApplication(App.class);
         springContext = springApplication.run();
+
+    }
+
+    public void restart() {
+        ((ConfigurableApplicationContext) springContext).close();
+        SpringApplication springApplication = new SpringApplication(App.class);
+        springContext = springApplication.run();
+        Objects.requireNonNull(MainController.createNewStage(springContext)).show();
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Objects.requireNonNull(MainController.createNewStage(springContext)).show();
-    }
-
-
-    private static List<Projeti> parseDataFromFile() {
-        List<Projeti> projeti = null;
-        try {
-            URL url = App.class.getClassLoader().getResource("sample_data.csv");
-            Path path = null;
-            path = Paths.get(url.toURI());
-            Parser<Projeti> parser = new CsvParser();
-            projeti = parser.parse(new FileReader(path.toString()), 100);
-        } catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
-        }
-        return projeti;
     }
 
     private static void hbase() {

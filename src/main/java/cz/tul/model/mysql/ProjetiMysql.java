@@ -1,13 +1,15 @@
-package cz.tul.model.db;
+package cz.tul.model.mysql;
+
+import cz.tul.model.generic.Projeti;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
+
 @Entity
 @IdClass(ProjetiId.class)
 @Table(name = Projeti.TABLE_NAME)
-public class Projeti {
-    static final String TABLE_NAME = "Projeti";
+public class ProjetiMysql implements Projeti{
 
     @Id
     private Timestamp cas;
@@ -38,10 +40,10 @@ public class Projeti {
 //        return super.hashCode();
 //    }
 
-    public Projeti() {
+    public ProjetiMysql() {
     }
 
-    public Projeti(Timestamp cas, int najeto, int benzin, float napeti, Ridic ridic, Brana id_brana, Auto spz_auto) {
+    public ProjetiMysql(Timestamp cas, int najeto, int benzin, float napeti, Ridic ridic, Brana id_brana, Auto spz_auto) {
         this.cas = cas;
         this.najeto = najeto;
         this.benzin = benzin;
@@ -49,6 +51,16 @@ public class Projeti {
         this.ridic = ridic;
         this.brana = id_brana;
         this.auto = spz_auto;
+    }
+
+    public ProjetiMysql(Projeti projeti) {
+        this.cas = projeti.getCas();
+        this.najeto = projeti.getNajeto();
+        this.benzin = projeti.getBenzin();
+        this.napeti = projeti.getNapeti();
+        this.ridic = projeti.getRidic();
+        this.brana = projeti.getBrana();
+        this.auto = projeti.getAuto();
     }
 
     public Timestamp getCas() {

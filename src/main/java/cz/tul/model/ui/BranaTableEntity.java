@@ -1,6 +1,6 @@
 package cz.tul.model.ui;
 
-import cz.tul.model.db.projections.GatePassageProjection;
+import cz.tul.model.generic.GatePassageProjection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class BranaTableEntity {
     private String typ;
 
 
-    public BranaTableEntity(String crp, String jmeno, String cas, String spz, String vyrobce, String typ) {
+    private BranaTableEntity(String crp, String jmeno, String cas, String spz, String vyrobce, String typ) {
         this.crp = crp;
         this.jmeno = jmeno;
         this.cas = cas;

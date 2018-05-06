@@ -47,3 +47,13 @@ ALTER TABLE Projeti ADD CONSTRAINT fk_id_brana FOREIGN KEY (id_brana) REFERENCES
 
 CREATE INDEX najeto_index ON Projeti (najeto);
 CREATE INDEX cas_index ON Projeti (cas);
+
+
+CREATE TABLE Nevalidni_zaznamy (
+  id INT NOT NULL,
+  pocet INT NOT NULL,
+  PRIMARY KEY (id)
+  );
+
+INSERT INTO Nevalidni_zaznamy (id,pocet)
+VALUES (1,0)

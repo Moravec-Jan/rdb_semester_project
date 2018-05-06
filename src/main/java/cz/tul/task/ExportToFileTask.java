@@ -48,7 +48,7 @@ public class ExportToFileTask<Data, Creator extends CsvCreator<Data>> extends Ta
                 if (data.size() > actualCount + batch)
                     dataToSave = data.subList(actualCount, actualCount + batch);
                 else {
-                    int size = data.size() - 1;
+                    int size = data.size();
                     int count = size - actualCount;
                     if (count == 0) break;
                     dataToSave = data.subList(actualCount, actualCount + count);

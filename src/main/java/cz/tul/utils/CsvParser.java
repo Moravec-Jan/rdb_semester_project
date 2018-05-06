@@ -1,10 +1,11 @@
 package cz.tul.utils;
 
 import com.opencsv.CSVReader;
-import cz.tul.model.db.Auto;
-import cz.tul.model.db.Brana;
-import cz.tul.model.db.Projeti;
-import cz.tul.model.db.Ridic;
+import cz.tul.model.generic.Projeti;
+import cz.tul.model.mysql.Auto;
+import cz.tul.model.mysql.Brana;
+import cz.tul.model.mysql.ProjetiMysql;
+import cz.tul.model.mysql.Ridic;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,8 +36,8 @@ public class CsvParser implements Parser<Projeti> {
                     reader.close();
                     break;
                 }
-                Projeti projeti = parseObjectFromLine(values);
-                objects.add(projeti);
+                Projeti mysqlProjeti = parseObjectFromLine(values);
+                objects.add(mysqlProjeti);
             }
 
         } catch (IOException ex) {
@@ -49,7 +50,7 @@ public class CsvParser implements Parser<Projeti> {
         Auto auto = new Auto(values[0], Integer.valueOf(values[1]), values[2], values[3]);
         Ridic ridic = new Ridic(values[4], values[5]);
         Brana brana = new Brana(values[11], Float.valueOf(values[12]), Float.valueOf(values[13]), Float.valueOf(values[15]), values[14]);
-        return new Projeti(convertUnixTimeToTimestamp(values[6]), Integer.valueOf(values[7]), Integer.valueOf(values[8]), Float.valueOf(values[9]), ridic, brana, auto);
+        return new ProjetiMysql(convertUnixTimeToTimestamp(values[6]), Integer.valueOf(values[7]), Integer.valueOf(values[8]), Float.valueOf(values[9]), ridic, brana, auto);
     }
 
     private Timestamp convertUnixTimeToTimestamp(String value) {
