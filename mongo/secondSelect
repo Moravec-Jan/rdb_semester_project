@@ -1,1 +1,145 @@
-{ 'brana.typ': {$ne: "Satellite" }, '_id.cas' : {$gte: new ISODate("2018-01-12 20:15:31"),$lte: new ISODate("2018-08-12 20:15:31")}}
+db.Projeti.aggregate([
+  {
+    $match: {
+      '_id.cas': {
+        $gte: new Date("2018-04-24T01:00:00"),
+        $lte: new Date("2018-04-24T03:00:00")
+      },
+      'brana.typ': {
+        $ne: "Satellite"
+        }
+    }
+  },{
+       $lookup:
+         {
+           from: "Projeti",
+           let: {ridic_crp: "$_id.ridic",ridic_jmeno: "$ridic.jmeno"},
+                      pipeline: [
+                      { $match:
+                            { $expr:
+                               { $and:
+                                  [
+                                    { $eq: [ "$_id.ridic",  "$$ridic_crp" ] },
+                                    { $eq: [ "$ridic.jmeno",  "$$ridic_jmeno" ] },
+                                    { $gte: [ "$_id.cas", new Date("2018-04-24T01:00:00")] },
+                                    { $lte: [ "$_id.cas", new Date("2018-04-24T03:00:00")] },
+                                    { $eq: [ "$brana.typ",  "Satellite" ] }
+                                  ]
+                               }
+                            }
+                      },
+                         { $project: { _id: 1 } }
+                      ],
+                      as: "sattelite_passage"
+         }
+    },
+    {
+        $match: { "sattelite_passage": { $eq: [] } }
+    },
+      {
+        $group: {
+          _id: "$_id.ridic",
+          jmeno: {
+            $first: "$ridic.jmeno"
+          },
+          start: {
+            $min: "$najeto"
+          },
+          end: {
+            $max: "$najeto"
+          }
+        }
+      },
+      {
+        $addFields: {
+          najeto_km: {
+            $subtract: [
+              "$end",
+              "$start"
+            ]
+          }
+        }
+      },
+      {$match: {
+      "najeto_km": {$gte: 10 }
+      }
+      },{
+                      $project: { _id: 1, "jmeno": 1, "najeto_km": 1}
+                      }
+])
+
+
+
+
+// command
+db.runCommand(
+{"aggregate" : "Projeti" , "pipeline" :[
+  {
+    $match: {
+      '_id.cas': {
+        $gte: new Date("2018-04-24T01:00:00"),
+        $lte: new Date("2018-04-24T03:00:00")
+      },
+      'brana.typ': {
+        $ne: "Satellite"
+        }
+    }
+  },{
+       $lookup:
+         {
+           from: "Projeti",
+           let: {ridic_crp: "$_id.ridic",ridic_jmeno: "$ridic.jmeno"},
+                      pipeline: [
+                      { $match:
+                            { $expr:
+                               { $and:
+                                  [
+                                    { $eq: [ "$_id.ridic",  "$$ridic_crp" ] },
+                                    { $eq: [ "$ridic.jmeno",  "$$ridic_jmeno" ] },
+                                    { $gte: [ "$_id.cas", new Date("2018-04-24T01:00:00")] },
+                                    { $lte: [ "$_id.cas", new Date("2018-04-24T03:00:00")] },
+                                    { $eq: [ "$brana.typ",  "Satellite" ] }
+                                  ]
+                               }
+                            }
+                      },
+                         { $project: { _id: 1 } }
+                      ],
+                      as: "sattelite_passage"
+         }
+    },
+    {
+        $match: { "sattelite_passage": { $eq: [] } }
+    },
+      {
+        $group: {
+          _id: "$_id.ridic",
+          jmeno: {
+            $first: "$ridic.jmeno"
+          },
+          start: {
+            $min: "$najeto"
+          },
+          end: {
+            $max: "$najeto"
+          }
+        }
+      },
+      {
+        $addFields: {
+          najeto_km: {
+            $subtract: [
+              "$end",
+              "$start"
+            ]
+          }
+        }
+      },
+      {$match: {
+      "najeto_km": {$gte: 10 }
+      }
+      },{
+                      $project: { _id: 1, "jmeno": 1, "najeto_km": 1}
+                      }
+],  cursor:{batchSize: 1000}
+})

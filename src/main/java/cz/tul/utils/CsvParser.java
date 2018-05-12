@@ -9,8 +9,14 @@ import cz.tul.model.mysql.Ridic;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class CsvParser implements Parser<Projeti> {
@@ -25,8 +31,8 @@ public class CsvParser implements Parser<Projeti> {
     public List<Projeti> parse(FileReader reader, long numberOfLines) {
         List<Projeti> objects = new ArrayList<>();
         try {
-            if (csvReader ==null)
-            csvReader = new CSVReader(reader);
+            if (csvReader == null)
+                csvReader = new CSVReader(reader);
             String[] values;
 
             for (int i = 0; i < numberOfLines; i++) {

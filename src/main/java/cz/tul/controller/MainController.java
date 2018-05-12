@@ -169,8 +169,8 @@ public class MainController {
         table.getItems().clear();
         from_date.setValue(LocalDate.parse("2018-04-24"));
         to_date.setValue(LocalDate.parse("2018-04-24"));
-        from_time.setText("06:00:00.0");
-        to_time.setText("10:00:00.0");
+        from_time.setText("01:00:00.0");
+        to_time.setText("03:00:00.0");
     }
 
     //D:\Moje dokumenty\skola\RDB\projekt\src\main\resources

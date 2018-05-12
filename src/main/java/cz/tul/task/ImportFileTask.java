@@ -20,7 +20,7 @@ public class ImportFileTask extends Task<Boolean> {
     private File csv;
     private long batch = 100;
     private long recordCount;
-    private boolean validateCoordinated = true;
+    private boolean validateCoordinates = false;
 
 
     public ImportFileTask(DatabaseService service, File csv) {
@@ -35,8 +35,8 @@ public class ImportFileTask extends Task<Boolean> {
         this.batch = batch;
     }
 
-    public void setValidateCoordinated(boolean validateCoordinated) {
-        this.validateCoordinated = validateCoordinated;
+    public void setValidateCoordinates(boolean validateCoordinates) {
+        this.validateCoordinates = validateCoordinates;
     }
 
     @Override
@@ -72,14 +72,17 @@ public class ImportFileTask extends Task<Boolean> {
         AtomicInteger invalidRecordCount = new AtomicInteger();
         if (records != null) {
             records.forEach(record -> {
-                if (validateCoordinated) {
+                if (validateCoordinates) {
                     if (!Brana.validate(record.getBrana().getLongtitude(), record.getBrana().getLatitude())) {
                         invalidRecordCount.getAndIncrement();
                         return;
                     }
                 }
                 try {
-                    service.saveWholeRecord(record);
+                    boolean success = service.saveWholeRecord(record);
+                    if (!success){
+                        invalidRecordCount.getAndIncrement();
+                    }
                 } catch (DataIntegrityViolationException e) {
                     invalidRecordCount.getAndIncrement();
                 } catch (Exception e) {

@@ -1,9 +1,6 @@
 package cz.tul.service;
 
-import cz.tul.model.mysql.Auto;
-import cz.tul.model.mysql.Brana;
-import cz.tul.model.mysql.InvalidMySqlRecords;
-import cz.tul.model.mysql.ProjetiMysql;
+import cz.tul.model.mysql.*;
 import cz.tul.model.generic.Projeti;
 import cz.tul.model.mysql.repository.*;
 import cz.tul.model.ui.RidicEntity;
@@ -52,18 +49,58 @@ public class MysqlDatabaseService extends DatabaseService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void saveWholeRecord(Projeti projeti) {
-            if (!ridicRepository.existsById(projeti.getRidic().getCrp()))
-                ridicRepository.save(projeti.getRidic());
-            if (!autoRepository.existsById(projeti.getAuto().getSpz()))
-                autoRepository.save(projeti.getAuto());
-            if (!branaRepository.existsById(projeti.getBrana().getId()))
-                branaRepository.save(projeti.getBrana());
+    public boolean saveWholeRecord(Projeti projeti) {
+        Boolean autoValid = validateAuto(projeti.getAuto());
+        if (autoValid != null && !autoValid) {
+            return false;
+        }
+        Boolean ridicValid = validateRidic(projeti.getRidic());
+        if (ridicValid != null && !ridicValid) {
+            return false;
+        }
+        Boolean branaValid = validateBrana(projeti.getBrana());
+        if (branaValid != null && !branaValid) {
+            return false;
+        }
 
-            projetiRepository.save(new ProjetiMysql(projeti));
+        if (autoValid == null) {
+            autoRepository.save(projeti.getAuto());
+
+        }
+        if (ridicValid == null) {
+            ridicRepository.save(projeti.getRidic());
+        }
+        if (branaValid == null) {
+            branaRepository.save(projeti.getBrana());
+        }
+
+        projetiRepository.save(new ProjetiMysql(projeti));
+        return true;
     }
 
-    @Override
+    private Boolean validateRidic(Ridic ridic) {
+        Ridic found = ridicRepository.findFirstByCrp(ridic.getCrp());
+        if (found == null)
+            return null;
+        return found.getJmeno().equals(ridic.getJmeno());
+    }
+
+    private Boolean validateAuto(Auto auto) {
+        Auto found = autoRepository.findFirstBySpz(auto.getSpz());
+        if (found == null)
+            return null;
+        return found.getTyp().equals(auto.getTyp()) && found.getVyrobce().equals(auto.getVyrobce()) && found.getBarva() == auto.getBarva();
+    }
+
+    private Boolean validateBrana(Brana brana) {
+        Brana found = branaRepository.findFirstById(brana.getId());
+        if (found == null) {
+            return null;
+        }
+        return found.getLatitude() == brana.getLatitude() && found.getCena() == brana.getCena() && found.getLongtitude() == brana.getLongtitude() && found.getTyp().equals(brana.getTyp());
+    }
+
+
     public void addInvalidRecords(int count) {
         Optional<InvalidMySqlRecords> number = invalidRecordsRepository.findById(1);
         number.ifPresent(invalidRecords -> invalidRecordsRepository.save(new InvalidMySqlRecords(1, number.get().getPocet() + count)));

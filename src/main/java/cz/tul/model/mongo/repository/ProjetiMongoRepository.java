@@ -18,10 +18,10 @@ public interface ProjetiMongoRepository extends MongoRepository<ProjetiMongo, Pr
     @Transactional
     List<GatePassageProjection> findByBrana_Id(String id, Pageable pageable);
 
+    Projeti findFirstByAuto_Spz(String spz);
 
-    boolean existsByRidic_Crp(String id);
+    Projeti findFirstByRidic_Crp(String crp);
 
-    boolean existsByAuto_Spz(String id);
+    Projeti findFirstByBrana_Id(String id);
 
-    boolean existsByBrana_Id(String id);
 }

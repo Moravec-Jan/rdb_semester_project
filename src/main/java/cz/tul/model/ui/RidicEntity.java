@@ -28,4 +28,10 @@ public class RidicEntity {
     public String getJmeno() {
         return jmeno;
     }
+
+    public RidicEntity(int km, String crp, String jmeno) {
+        this.km = km;
+        this.crp = crp;
+        this.jmeno = jmeno;
+    }
 }

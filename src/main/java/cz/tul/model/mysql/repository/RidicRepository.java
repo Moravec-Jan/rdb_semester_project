@@ -10,4 +10,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface RidicRepository extends CrudRepository<Ridic, String> {
+    Ridic findFirstByCrp(String crp);
 }

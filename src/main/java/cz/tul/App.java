@@ -42,11 +42,10 @@ import java.util.Objects;
 public class App extends Application {
     private static App instance;
 
-    private static boolean hbase = false;
 
     private ApplicationContext springContext;
 
-    private static final String defaultProfile = "mysql";
+    private static final String defaultProfile = "mongo";
 
     @Bean
     public CsvCreator<ProjetiMysql> getCreater() {
@@ -72,11 +71,6 @@ public class App extends Application {
     @Override
     public void init() {
         instance = this;
-
-        if (hbase) {
-            hbase();
-            return;
-        }
         if (System.getProperty("spring.profiles.active") == null)
             System.setProperty("spring.profiles.active", defaultProfile);
         SpringApplication springApplication = new SpringApplication(App.class);

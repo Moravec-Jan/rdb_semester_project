@@ -12,4 +12,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRED)
 @Repository
 public interface AutoRepository extends JpaRepository<Auto, String> {
+    Auto findFirstBySpz(String spz);
 }

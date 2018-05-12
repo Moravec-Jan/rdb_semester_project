@@ -89,7 +89,7 @@
                      <children>
                         <Label prefHeight="17.0" prefWidth="96.0" text="Od " />
                         <DatePicker fx:id="from_date" />
-                        <TextField fx:id="from_time" text="06:30">
+                        <TextField fx:id="from_time" text="01:00">
                            <VBox.margin>
                               <Insets top="5.0" />
                            </VBox.margin>
@@ -100,7 +100,7 @@
                      <children>
                         <Label prefHeight="17.0" prefWidth="96.0" text="Do" />
                         <DatePicker fx:id="to_date" />
-                        <TextField fx:id="to_time" text="23:00">
+                        <TextField fx:id="to_time" text="03:00">
                            <VBox.margin>
                               <Insets top="5.0" />
                            </VBox.margin>
@@ -110,16 +110,16 @@
                         <Insets left="15.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox prefHeight="200.0" prefWidth="100.0">
+                  <VBox prefHeight="72.0" prefWidth="121.0">
                      <children>
-                        <Label alignment="TOP_LEFT" prefHeight="17.0" prefWidth="101.0" text="Ujeto kilometrů" />
+                        <Label alignment="TOP_LEFT" prefHeight="17.0" prefWidth="122.0" text="Ujeto min. kilometrů" />
                         <TextField fx:id="kilometers" text="10" />
                      </children>
                      <HBox.margin>
                         <Insets left="20.0" />
                      </HBox.margin>
                   </VBox>
-                  <Button mnemonicParsing="false" onAction="#onSecondSelectClick" text="Vyhledat">
+                  <Button mnemonicParsing="false" onAction="#onSecondSelectClick" prefHeight="25.0" prefWidth="81.0" text="Vyhledat">
                      <HBox.margin>
                         <Insets left="20.0" top="17.0" />
                      </HBox.margin>

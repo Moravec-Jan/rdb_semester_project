@@ -10,4 +10,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface BranaRepository extends CrudRepository<Brana, String> {
+    Brana findFirstById(String id);
 }

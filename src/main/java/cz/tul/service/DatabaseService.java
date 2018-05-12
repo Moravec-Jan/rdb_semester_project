@@ -13,7 +13,7 @@ import java.util.List;
 public abstract class DatabaseService {
     public abstract void deleteAll();
 
-    public abstract void saveWholeRecord(Projeti projeti);
+    public abstract boolean saveWholeRecord(Projeti projeti);
 
     public abstract void addInvalidRecords(int count);
 

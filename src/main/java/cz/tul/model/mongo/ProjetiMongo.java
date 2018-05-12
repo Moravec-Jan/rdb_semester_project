@@ -87,4 +87,37 @@ public class ProjetiMongo implements Projeti{
     public static Date convertTimestampToDate(Timestamp timestamp) {
         return new Date(timestamp.getTime());
     }
+
+
+    public void setId(ProjetiMongoId id) {
+        this.id = id;
+    }
+
+    public void setBrana(Brana brana) {
+        this.brana = brana;
+    }
+
+    public void setAuto(Auto auto) {
+        this.auto = auto;
+    }
+
+    public void setRidic(Ridic ridic) {
+        this.ridic = ridic;
+    }
+
+    public void setNajeto(int najeto) {
+        this.najeto = najeto;
+    }
+
+    public void setBenzin(int benzin) {
+        this.benzin = benzin;
+    }
+
+    public void setNapeti(float napeti) {
+        this.napeti = napeti;
+    }
+
+    public void setCas(Timestamp cas) {
+        this.cas = cas;
+    }
 }
