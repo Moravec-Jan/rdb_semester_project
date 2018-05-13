@@ -1,4 +1,4 @@
-package cz.tul.model.mysql;
+package cz.tul.mysql.model;
 
 import cz.tul.model.generic.Projeti;
 

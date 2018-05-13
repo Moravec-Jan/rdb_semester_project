@@ -1,9 +1,9 @@
-package cz.tul.model.mongo.repository;
+package cz.tul.mongo.repository;
 
 import cz.tul.model.generic.Projeti;
-import cz.tul.model.mysql.ProjetiId;
+import cz.tul.mysql.model.ProjetiId;
 import cz.tul.model.generic.GatePassageProjection;
-import cz.tul.model.mongo.ProjetiMongo;
+import cz.tul.mongo.model.ProjetiMongo;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;

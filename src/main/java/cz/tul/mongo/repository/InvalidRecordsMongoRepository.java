@@ -1,6 +1,6 @@
-package cz.tul.model.mongo.repository;
+package cz.tul.mongo.repository;
 
-import cz.tul.model.mongo.InvalidMongoRecords;
+import cz.tul.mongo.model.InvalidMongoRecords;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;

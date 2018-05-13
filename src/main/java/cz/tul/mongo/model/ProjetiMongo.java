@@ -1,9 +1,10 @@
-package cz.tul.model.mongo;
+package cz.tul.mongo.model;
 
-import cz.tul.model.mysql.*;
 import cz.tul.model.generic.Projeti;
+import cz.tul.mysql.model.Auto;
+import cz.tul.mysql.model.Brana;
+import cz.tul.mysql.model.Ridic;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;

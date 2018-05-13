@@ -1,8 +1,7 @@
-package cz.tul.model.mysql;
+package cz.tul.mysql.model;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

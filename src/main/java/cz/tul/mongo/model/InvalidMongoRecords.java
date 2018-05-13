@@ -1,7 +1,6 @@
-package cz.tul.model.mongo;
+package cz.tul.mongo.model;
 
 import cz.tul.model.generic.InvalidRecords;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;

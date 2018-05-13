@@ -2,21 +2,15 @@ package cz.tul.utils;
 
 import com.opencsv.CSVReader;
 import cz.tul.model.generic.Projeti;
-import cz.tul.model.mysql.Auto;
-import cz.tul.model.mysql.Brana;
-import cz.tul.model.mysql.ProjetiMysql;
-import cz.tul.model.mysql.Ridic;
+import cz.tul.mysql.model.Auto;
+import cz.tul.mysql.model.Brana;
+import cz.tul.mysql.model.ProjetiMysql;
+import cz.tul.mysql.model.Ridic;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class CsvParser implements Parser<Projeti> {

@@ -1,19 +1,19 @@
 package cz.tul.model.generic.projections;
 
-import cz.tul.model.mysql.Auto;
-import cz.tul.model.mysql.Ridic;
+import cz.tul.mysql.model.Auto;
+import cz.tul.mysql.model.Ridic;
 import cz.tul.model.generic.GatePassageProjection;
 
 import java.sql.Timestamp;
 
-public class GatePassageMongoProjection implements GatePassageProjection,GatePassageProjection.RidicCrpJmenoOnly,GatePassageProjection.AutoSpzVyrobceTypOnly {
+public class GatePassageProjectionImp implements cz.tul.model.generic.GatePassageProjection, cz.tul.model.generic.GatePassageProjection.RidicCrpJmenoOnly, cz.tul.model.generic.GatePassageProjection.AutoSpzVyrobceTypOnly {
 
 
     private Ridic ridic;
     private Auto auto;
     private Timestamp timestamp;
 
-    public GatePassageMongoProjection(Ridic ridic, Auto auto, Timestamp timestamp) {
+    public GatePassageProjectionImp(Ridic ridic, Auto auto, Timestamp timestamp) {
         this.ridic = ridic;
         this.auto = auto;
         this.timestamp = timestamp;

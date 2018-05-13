@@ -1,3 +1,4 @@
+USE rdb;
 CREATE TABLE Auto
 (
     spz CHAR(8),

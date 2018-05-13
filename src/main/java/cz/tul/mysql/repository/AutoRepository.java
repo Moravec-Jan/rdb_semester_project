@@ -1,9 +1,7 @@
-package cz.tul.model.mysql.repository;
+package cz.tul.mysql.repository;
 
-import cz.tul.model.mysql.Auto;
-import org.springframework.context.annotation.Profile;
+import cz.tul.mysql.model.Auto;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

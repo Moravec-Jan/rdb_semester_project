@@ -26,6 +26,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.springframework.batch.core.configuration.xml.ExceptionElementParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -167,20 +168,30 @@ public class MainController {
         select.getSelectionModel().select(0);
         table.getColumns().clear();
         table.getItems().clear();
-        from_date.setValue(LocalDate.parse("2018-04-24"));
+        from_date.setValue(LocalDate.parse("2018-04-23"));
         to_date.setValue(LocalDate.parse("2018-04-24"));
-        from_time.setText("01:00:00.0");
-        to_time.setText("03:00:00.0");
+        from_time.setText("23:00:00.0");
+        to_time.setText("01:00:00.0");
     }
 
     //D:\Moje dokumenty\skola\RDB\projekt\src\main\resources
     public void importData() {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Cvs file", "*.csv"));
-        chooser.setInitialDirectory(new File("D:\\Moje dokumenty\\skola\\RDB\\projekt\\src\\main\\resources"));
+        try {
+            chooser.setInitialDirectory(new File("D:\\Moje Dokumenty\\skola\\RDB\\projekt\\rdb\\src\\main\\resources"));
+        } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+
         File file = chooser.showOpenDialog(stage);
         if (file != null) {
-            service.deleteAll();
+            try {
+                service.deleteAll();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             ImportFileTask task = new ImportFileTask(service, file);
             setProgressBarVisibility(progressBar, true);
             innerPane.setVisible(false);
@@ -197,11 +208,11 @@ public class MainController {
 
     private void showReport() {
         try {
-            Iterable<? extends InvalidRecords> invalidRecordsReport = service.getInvalidRecordsReport();
-            if (!invalidRecordsReport.iterator().hasNext())
+            InvalidRecords invalidRecordsReport = service.getInvalidRecordsReport();
+            if (invalidRecordsReport == null)
                 return;
 
-            invalidRecordsLabel.setText(String.valueOf(invalidRecordsReport.iterator().next().getPocet()));
+            invalidRecordsLabel.setText(String.valueOf(invalidRecordsReport.getPocet()));
             exportStatusPanel.setVisible(false);
             importReportPanel.setVisible(true);
         } catch (Exception e) {

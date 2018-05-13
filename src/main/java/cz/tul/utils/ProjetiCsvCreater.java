@@ -1,6 +1,6 @@
 package cz.tul.utils;
 
-import cz.tul.model.mysql.ProjetiMysql;
+import cz.tul.mysql.model.ProjetiMysql;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

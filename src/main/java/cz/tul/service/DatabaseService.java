@@ -17,7 +17,7 @@ public abstract class DatabaseService {
 
     public abstract void addInvalidRecords(int count);
 
-    public abstract Iterable<? extends InvalidRecords> getInvalidRecordsReport();
+    public abstract InvalidRecords getInvalidRecordsReport();
 
     public abstract List<GatePassageProjection> getByGate(String key);
 

@@ -1,7 +1,6 @@
-package cz.tul.model.mysql.repository;
+package cz.tul.mysql.repository;
 
-import cz.tul.model.mysql.InvalidMySqlRecords;
-import org.springframework.context.annotation.Profile;
+import cz.tul.mysql.model.InvalidMySqlRecords;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

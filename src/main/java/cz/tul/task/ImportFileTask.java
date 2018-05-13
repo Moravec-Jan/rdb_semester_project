@@ -1,7 +1,7 @@
 package cz.tul.task;
 
 import cz.tul.model.generic.Projeti;
-import cz.tul.model.mysql.Brana;
+import cz.tul.mysql.model.Brana;
 import cz.tul.service.DatabaseService;
 import cz.tul.utils.CsvParser;
 import javafx.concurrent.Task;

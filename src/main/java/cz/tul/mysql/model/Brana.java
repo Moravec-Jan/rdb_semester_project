@@ -1,4 +1,4 @@
-package cz.tul.model.mysql;
+package cz.tul.mysql.model;
 
 import org.springframework.context.annotation.Profile;
 
@@ -28,6 +28,12 @@ public class Brana {
         this.id = id;
         this.longtitude = longtitude;
         this.latitude = latitude;
+        this.cena = cena;
+        this.typ = typ;
+    }
+
+    public Brana(String id, float cena, String typ) {
+        this.id = id;
         this.cena = cena;
         this.typ = typ;
     }

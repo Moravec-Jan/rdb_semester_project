@@ -1,21 +1,22 @@
-package cz.tul.service;
+package cz.tul.mongo;
 
-import cz.tul.model.mysql.Auto;
-import cz.tul.model.mysql.Brana;
+import cz.tul.model.generic.InvalidRecords;
+import cz.tul.mysql.model.Auto;
+import cz.tul.mysql.model.Brana;
 import cz.tul.model.generic.GatePassageProjection;
 import cz.tul.model.generic.Projeti;
-import cz.tul.model.mongo.InvalidMongoRecords;
-import cz.tul.model.mongo.ProjetiMongo;
-import cz.tul.model.mysql.Ridic;
+import cz.tul.mongo.model.InvalidMongoRecords;
+import cz.tul.mongo.model.ProjetiMongo;
+import cz.tul.mysql.model.Ridic;
 import cz.tul.model.ui.RidicEntity;
-import cz.tul.model.mongo.repository.InvalidRecordsMongoRepository;
-import cz.tul.model.mongo.repository.ProjetiMongoRepository;
+import cz.tul.mongo.repository.InvalidRecordsMongoRepository;
+import cz.tul.mongo.repository.ProjetiMongoRepository;
+import cz.tul.service.DatabaseService;
 import org.bson.Document;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -29,11 +30,9 @@ import java.util.*;
 @Profile("mongo")
 @Service
 public class MongoDatabaseService extends DatabaseService {
-    @Lazy
     @Autowired
     ProjetiMongoRepository projetiMongoRepository;
 
-    @Lazy
     @Autowired
     InvalidRecordsMongoRepository invalidRecordsMongoRepository;
 
@@ -48,16 +47,17 @@ public class MongoDatabaseService extends DatabaseService {
 
     @Override
     public boolean saveWholeRecord(Projeti projeti) {
-        if (!validateRidic(projeti.getRidic()))
-            return false;
-
-        if (!validateAuto(projeti.getAuto())) {
-            return false;
-        }
-
         if (!validateBrana(projeti.getBrana())) {
             return false;
         }
+        if (!validateAuto(projeti.getAuto())) {
+            return false;
+        }
+        if (!validateRidic(projeti.getRidic())) {
+            return false;
+        }
+
+
 
         projetiMongoRepository.save(new ProjetiMongo(projeti));
         return true;
@@ -84,7 +84,7 @@ public class MongoDatabaseService extends DatabaseService {
         if (found == null)
             return true;
         Brana foundBrana = found.getBrana();
-        return foundBrana.getLatitude() == brana.getLatitude() && foundBrana.getCena() == brana.getCena() && foundBrana.getLongtitude() == brana.getLongtitude() && foundBrana.getTyp().equals(brana.getTyp());
+        return foundBrana.getCena() == brana.getCena()  && foundBrana.getTyp().equals(brana.getTyp());
     }
 
     @Override
@@ -106,8 +106,8 @@ public class MongoDatabaseService extends DatabaseService {
     }
 
     @Override
-    public Iterable<InvalidMongoRecords> getInvalidRecordsReport() {
-        return invalidRecordsMongoRepository.findAll();
+    public InvalidRecords getInvalidRecordsReport() {
+        return invalidRecordsMongoRepository.findAll().get(0);
     }
 
     @Override

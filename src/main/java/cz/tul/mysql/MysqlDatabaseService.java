@@ -1,15 +1,14 @@
-package cz.tul.service;
+package cz.tul.mysql;
 
-import cz.tul.model.mysql.*;
+import cz.tul.model.generic.InvalidRecords;
 import cz.tul.model.generic.Projeti;
-import cz.tul.model.mysql.repository.*;
+import cz.tul.mysql.model.*;
+import cz.tul.mysql.repository.*;
 import cz.tul.model.ui.RidicEntity;
 import cz.tul.model.generic.GatePassageProjection;
-import org.hibernate.exception.ConstraintViolationException;
+import cz.tul.service.DatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManagerFactory;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Profile("mysql")
@@ -50,6 +47,10 @@ public class MysqlDatabaseService extends DatabaseService {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean saveWholeRecord(Projeti projeti) {
+        Boolean branaValid = validateBrana(projeti.getBrana());
+        if (branaValid != null && !branaValid) {
+            return false;
+        }
         Boolean autoValid = validateAuto(projeti.getAuto());
         if (autoValid != null && !autoValid) {
             return false;
@@ -58,10 +59,7 @@ public class MysqlDatabaseService extends DatabaseService {
         if (ridicValid != null && !ridicValid) {
             return false;
         }
-        Boolean branaValid = validateBrana(projeti.getBrana());
-        if (branaValid != null && !branaValid) {
-            return false;
-        }
+
 
         if (autoValid == null) {
             autoRepository.save(projeti.getAuto());
@@ -97,7 +95,7 @@ public class MysqlDatabaseService extends DatabaseService {
         if (found == null) {
             return null;
         }
-        return found.getLatitude() == brana.getLatitude() && found.getCena() == brana.getCena() && found.getLongtitude() == brana.getLongtitude() && found.getTyp().equals(brana.getTyp());
+        return  found.getCena() == brana.getCena() && found.getTyp().equals(brana.getTyp());
     }
 
 
@@ -107,8 +105,8 @@ public class MysqlDatabaseService extends DatabaseService {
     }
 
     @Override
-    public Iterable<InvalidMySqlRecords> getInvalidRecordsReport() {
-        return invalidRecordsRepository.findAll();
+    public InvalidRecords getInvalidRecordsReport() {
+        return invalidRecordsRepository.findAll().iterator().next();
     }
 
     @Override

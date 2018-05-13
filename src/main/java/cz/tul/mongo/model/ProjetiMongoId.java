@@ -1,4 +1,4 @@
-package cz.tul.model.mongo;
+package cz.tul.mongo.model;
 
 import java.util.Date;
 
