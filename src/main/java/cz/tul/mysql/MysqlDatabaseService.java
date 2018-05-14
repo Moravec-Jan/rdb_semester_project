@@ -1,10 +1,10 @@
 package cz.tul.mysql;
 
 import cz.tul.model.generic.InvalidRecords;
-import cz.tul.model.generic.Projeti;
+import cz.tul.model.generic.Passage;
 import cz.tul.mysql.model.*;
 import cz.tul.mysql.repository.*;
-import cz.tul.model.ui.RidicEntity;
+import cz.tul.model.ui.DriverEntity;
 import cz.tul.model.generic.GatePassageProjection;
 import cz.tul.service.DatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,13 @@ import java.util.Optional;
 @Service
 public class MysqlDatabaseService extends DatabaseService {
     @Autowired
-    ProjetiRepository projetiRepository;
+    PassageRepository passageRepository;
     @Autowired
-    BranaRepository branaRepository;
+    GateRepository gateRepository;
     @Autowired
-    AutoRepository autoRepository;
+    CarRepository carRepository;
     @Autowired
-    RidicRepository ridicRepository;
+    DriverRepository driverRepository;
     @Autowired
     EntityManagerFactory factory;
     @Autowired
@@ -39,14 +39,14 @@ public class MysqlDatabaseService extends DatabaseService {
     @Override
     public void deleteAll() {
         invalidRecordsRepository.save(new InvalidMySqlRecords(1, 0)); // reset to zero
-        projetiRepository.deleteAll();
-        branaRepository.deleteAll();
-        autoRepository.deleteAll();
-        ridicRepository.deleteAll();
+        passageRepository.deleteAll();
+        gateRepository.deleteAll();
+        carRepository.deleteAll();
+        driverRepository.deleteAll();
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean saveWholeRecord(Projeti projeti) {
+    public boolean saveWholeRecord(Passage projeti) {
         Boolean branaValid = validateBrana(projeti.getBrana());
         if (branaValid != null && !branaValid) {
             return false;
@@ -62,36 +62,36 @@ public class MysqlDatabaseService extends DatabaseService {
 
 
         if (autoValid == null) {
-            autoRepository.save(projeti.getAuto());
+            carRepository.save(projeti.getAuto());
 
         }
         if (ridicValid == null) {
-            ridicRepository.save(projeti.getRidic());
+            driverRepository.save(projeti.getRidic());
         }
         if (branaValid == null) {
-            branaRepository.save(projeti.getBrana());
+            gateRepository.save(projeti.getBrana());
         }
 
-        projetiRepository.save(new ProjetiMysql(projeti));
+        passageRepository.save(new PassageMysql(projeti));
         return true;
     }
 
-    private Boolean validateRidic(Ridic ridic) {
-        Ridic found = ridicRepository.findFirstByCrp(ridic.getCrp());
+    private Boolean validateRidic(Driver ridic) {
+        Driver found = driverRepository.findFirstByCrp(ridic.getCrp());
         if (found == null)
             return null;
         return found.getJmeno().equals(ridic.getJmeno());
     }
 
-    private Boolean validateAuto(Auto auto) {
-        Auto found = autoRepository.findFirstBySpz(auto.getSpz());
+    private Boolean validateAuto(Car auto) {
+        Car found = carRepository.findFirstBySpz(auto.getSpz());
         if (found == null)
             return null;
         return found.getTyp().equals(auto.getTyp()) && found.getVyrobce().equals(auto.getVyrobce()) && found.getBarva() == auto.getBarva();
     }
 
-    private Boolean validateBrana(Brana brana) {
-        Brana found = branaRepository.findFirstById(brana.getId());
+    private Boolean validateBrana(Gate brana) {
+        Gate found = gateRepository.findFirstById(brana.getId());
         if (found == null) {
             return null;
         }
@@ -111,11 +111,11 @@ public class MysqlDatabaseService extends DatabaseService {
 
     @Override
     public List<GatePassageProjection> getByGate(String key) {
-        return projetiRepository.findByBrana_Id(key, PageRequest.of(0, 1000));
+        return passageRepository.findByBrana_Id(key, PageRequest.of(0, 1000));
     }
 
     @Override
-    public List<RidicEntity> getDriversByKmWhoDidNotPassSatelliteGate(Timestamp from, Timestamp to, int km) {
+    public List<DriverEntity> getDriversByKmWhoDidNotPassSatelliteGate(Timestamp from, Timestamp to, int km) {
 
         return factory.createEntityManager().createNativeQuery("SELECT crp,jmeno,najeto_km  " +
                 "FROM( " +
@@ -128,6 +128,6 @@ public class MysqlDatabaseService extends DatabaseService {
                 "  WHERE rdb.brana.typ='Satellite' AND cas BETWEEN TIMESTAMP('" + from + "') AND TIMESTAMP('" + to + "') " +
                 " ) " +
                 " GROUP BY crp_ridic) AS A INNER JOIN ridic ON A.crp_ridic = ridic.crp " +
-                "WHERE A.najeto_km > " + km, RidicEntity.class).getResultList();
+                "WHERE A.najeto_km > " + km, DriverEntity.class).getResultList();
     }
 }

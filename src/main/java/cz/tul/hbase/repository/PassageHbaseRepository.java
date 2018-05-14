@@ -1,12 +1,12 @@
 package cz.tul.hbase.repository;
 
 import cz.tul.hbase.model.GatePassageHbaseProjection;
-import cz.tul.hbase.model.RidicHbase;
+import cz.tul.hbase.model.DriverHbase;
 import cz.tul.model.generic.GatePassageProjection;
-import cz.tul.model.generic.Projeti;
-import cz.tul.mysql.model.Auto;
-import cz.tul.mysql.model.Brana;
-import cz.tul.mysql.model.Ridic;
+import cz.tul.model.generic.Passage;
+import cz.tul.mysql.model.Car;
+import cz.tul.mysql.model.Gate;
+import cz.tul.mysql.model.Driver;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @Profile("hbase")
 @Repository
-public class ProjetiHbaseRepository {
+public class PassageHbaseRepository {
     private static final String PROJETI_CAS_QUALIFIER = "projeti.cas";
     private static final String PROJETI_BENZIN_QUALIFIER = "projeti.benzin";
     private static final String PROJETI_NAJETO_QUALIFIER = "projeti.najeto";
@@ -49,48 +49,51 @@ public class ProjetiHbaseRepository {
     @Autowired
     AggregationClient aggregationClient;
 
-    public Ridic getRidicByCrp(String crp) throws IOException {
+    public Driver getRidicByCrp(String crp) throws IOException {
         Table table = getTable();
         Scan scan = new Scan();
         scan.setMaxResultSize(1);
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
-        scan.setFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
+        scan.setFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 RIDIC_CRP_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, crp.getBytes()));
         ResultScanner results = table.getScanner(scan);
         Result next = results.next();
         if (next == null)
             return null;
-        byte[] crpBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
-        byte[] jmenoBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
-        return new Ridic(Bytes.toString(crpBytes), Bytes.toString(jmenoBytes));
+        byte[] crpBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
+        byte[] jmenoBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
+        return new Driver(Bytes.toString(crpBytes), Bytes.toString(jmenoBytes));
     }
 
-    public RidicHbase getRidicByDate(Timestamp from, Timestamp to, String lastKey) throws IOException {
+    public List<DriverHbase> getDriverByDate(Timestamp from, Timestamp to) throws IOException {
         Table table = getTable();
         Scan scan = new Scan();
-        scan.setMaxResultSize(1);
-        if (lastKey != null)
-            scan.setStartRow(Bytes.toBytes(lastKey));
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
         FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 PROJETI_CAS_QUALIFIER.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(from.getTime())));
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 PROJETI_CAS_QUALIFIER.getBytes(), CompareFilter.CompareOp.LESS_OR_EQUAL, Bytes.toBytes(to.getTime())));
-        if (lastKey != null)
-            filterList.addFilter(new RowFilter(CompareFilter.CompareOp.NOT_EQUAL, new BinaryComparator(Bytes.toBytes(lastKey))));
         scan.setFilter(filterList);
         ResultScanner results = table.getScanner(scan);
         Result next = results.next();
         if (next == null)
             return null;
+        List<DriverHbase> list = new ArrayList<>();
+        for(Result result: results) {
+            list.add(parseDriverHbase(result));
+        }
+        return list;
+    }
+
+    private DriverHbase parseDriverHbase(Result next) {
         byte[] row = next.getRow();
         String rowId = Bytes.toString(row);
-        byte[] crpBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
-        byte[] jmenoBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
-        return new RidicHbase(Bytes.toString(crpBytes), rowId, Bytes.toString(jmenoBytes));
+        byte[] crpBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
+        byte[] jmenoBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
+        return new DriverHbase(Bytes.toString(crpBytes), rowId, Bytes.toString(jmenoBytes));
     }
 
     public boolean hasPassedSatelliteGate(Timestamp from, Timestamp to, String crp) throws IOException {
@@ -98,13 +101,13 @@ public class ProjetiHbaseRepository {
         Scan scan = new Scan();
         scan.setMaxResultSize(1);
         FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 PROJETI_CAS_QUALIFIER.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(from.getTime())));
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 PROJETI_CAS_QUALIFIER.getBytes(), CompareFilter.CompareOp.LESS_OR_EQUAL, Bytes.toBytes(to.getTime())));
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 BRANA_TYP_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, Bytes.toBytes("Satellite")));
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 RIDIC_CRP_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, Bytes.toBytes(crp)));
         scan.setFilter(filterList);
         ResultScanner results = table.getScanner(scan);
@@ -112,55 +115,55 @@ public class ProjetiHbaseRepository {
         return next != null;
     }
 
-    public Auto getAutoBySpz(String spz) throws IOException {
+    public Car getAutoBySpz(String spz) throws IOException {
         Table table = getTable();
         Scan scan = new Scan();
         scan.setMaxResultSize(1);
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), AUTO_SPZ_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), AUTO_TYP_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), AUTO_VYROBCE_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), AUTO_BARVA_QUALIFIER.getBytes());
-        scan.setFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), AUTO_SPZ_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), AUTO_TYP_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), AUTO_VYROBCE_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), AUTO_BARVA_QUALIFIER.getBytes());
+        scan.setFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 AUTO_SPZ_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, spz.getBytes()));
         ResultScanner results = table.getScanner(scan);
         Result next = results.next();
         if (next == null)
             return null;
-        byte[] spzBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_SPZ_QUALIFIER.getBytes());
-        byte[] typBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_TYP_QUALIFIER.getBytes());
-        byte[] vyrobceBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_VYROBCE_QUALIFIER.getBytes());
-        byte[] barvaBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_BARVA_QUALIFIER.getBytes());
-        return new Auto(Bytes.toString(spzBytes), Bytes.toInt(barvaBytes), Bytes.toString(vyrobceBytes), Bytes.toString(typBytes));
+        byte[] spzBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_SPZ_QUALIFIER.getBytes());
+        byte[] typBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_TYP_QUALIFIER.getBytes());
+        byte[] vyrobceBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_VYROBCE_QUALIFIER.getBytes());
+        byte[] barvaBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_BARVA_QUALIFIER.getBytes());
+        return new Car(Bytes.toString(spzBytes), Bytes.toInt(barvaBytes), Bytes.toString(vyrobceBytes), Bytes.toString(typBytes));
     }
 
-    public Brana getBranaById(String id) throws IOException {
+    public Gate getBranaById(String id) throws IOException {
         Table table = getTable();
         Scan scan = new Scan();
         scan.setMaxResultSize(1);
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), BRANA_CENA_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), BRANA_TYP_QUALIFIER.getBytes());
-        scan.addColumn(Projeti.COLUMN_FAMILY.getBytes(), BRANA_ID_QUALIFIER.getBytes());
-        scan.setFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), BRANA_CENA_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), BRANA_TYP_QUALIFIER.getBytes());
+        scan.addColumn(Passage.COLUMN_FAMILY.getBytes(), BRANA_ID_QUALIFIER.getBytes());
+        scan.setFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 BRANA_ID_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, id.getBytes()));
         ResultScanner results = table.getScanner(scan);
         Result next = results.next();
         if (next == null)
             return null;
-        byte[] idBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), BRANA_ID_QUALIFIER.getBytes());
+        byte[] idBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), BRANA_ID_QUALIFIER.getBytes());
         String idString = Bytes.toString(idBytes);
-        byte[] cenaBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), BRANA_CENA_QUALIFIER.getBytes());
-        byte[] typBytes = next.getValue(Projeti.COLUMN_FAMILY.getBytes(), BRANA_TYP_QUALIFIER.getBytes());
-        return new Brana(id, Bytes.toFloat(cenaBytes), Bytes.toString(typBytes));
+        byte[] cenaBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), BRANA_CENA_QUALIFIER.getBytes());
+        byte[] typBytes = next.getValue(Passage.COLUMN_FAMILY.getBytes(), BRANA_TYP_QUALIFIER.getBytes());
+        return new Gate(id, Bytes.toFloat(cenaBytes), Bytes.toString(typBytes));
     }
 
     private Table getTable() throws IOException {
-        return connection.getTable(TableName.valueOf(Projeti.TABLE_NAME));
+        return connection.getTable(TableName.valueOf(Passage.TABLE_NAME));
     }
 
     public List<GatePassageProjection> getByBranaId(String id) throws IOException {
         Table table = getTable();
         Scan scan = new Scan();
-        scan.setFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        scan.setFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 BRANA_ID_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, id.getBytes()));
         ResultScanner results = table.getScanner(scan);
         List<GatePassageProjection> list = new ArrayList<>();
@@ -171,12 +174,12 @@ public class ProjetiHbaseRepository {
     }
 
     private GatePassageHbaseProjection mapResultToGatePassageProjection(Result result) {
-        byte[] casBytes = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), PROJETI_CAS_QUALIFIER.getBytes());
-        byte[] spzBytes = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_SPZ_QUALIFIER.getBytes());
-        byte[] vyrobceBytes = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_VYROBCE_QUALIFIER.getBytes());
-        byte[] typBytes = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), AUTO_TYP_QUALIFIER.getBytes());
-        byte[] crpBytes = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
-        byte[] jmenoBytes = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
+        byte[] casBytes = result.getValue(Passage.COLUMN_FAMILY.getBytes(), PROJETI_CAS_QUALIFIER.getBytes());
+        byte[] spzBytes = result.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_SPZ_QUALIFIER.getBytes());
+        byte[] vyrobceBytes = result.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_VYROBCE_QUALIFIER.getBytes());
+        byte[] typBytes = result.getValue(Passage.COLUMN_FAMILY.getBytes(), AUTO_TYP_QUALIFIER.getBytes());
+        byte[] crpBytes = result.getValue(Passage.COLUMN_FAMILY.getBytes(), RIDIC_CRP_QUALIFIER.getBytes());
+        byte[] jmenoBytes = result.getValue(Passage.COLUMN_FAMILY.getBytes(), RIDIC_JMENO_QUALIFIER.getBytes());
 
         Timestamp cas = new Timestamp(Bytes.toLong(casBytes));
         String spz = Bytes.toString(spzBytes);
@@ -194,7 +197,7 @@ public class ProjetiHbaseRepository {
         Scan s = new Scan();
         List<Delete> listOfBatchDelete = new ArrayList<Delete>();
         //add your filters to the scanner
-        s.addFamily(Projeti.COLUMN_FAMILY.getBytes());
+        s.addFamily(Passage.COLUMN_FAMILY.getBytes());
         ResultScanner scanner = table.getScanner(s);
         for (Result rr : scanner) {
             Delete d = new Delete(rr.getRow());
@@ -208,11 +211,11 @@ public class ProjetiHbaseRepository {
     }
 
     //@Transactional
-    public void save(Projeti projeti) throws IOException {
+    public void save(Passage projeti) throws IOException {
         String id = createId(projeti);
         Table table = getTable();
         Put p = new Put(id.getBytes());
-        byte[] columnFamily = Projeti.COLUMN_FAMILY.getBytes();
+        byte[] columnFamily = Passage.COLUMN_FAMILY.getBytes();
         p.addColumn(columnFamily, RIDIC_JMENO_QUALIFIER.getBytes(), projeti.getRidic().getJmeno().getBytes());
         p.addColumn(columnFamily, RIDIC_CRP_QUALIFIER.getBytes(), projeti.getRidic().getCrp().getBytes());
         p.addColumn(columnFamily, AUTO_TYP_QUALIFIER.getBytes(), projeti.getAuto().getTyp().getBytes());
@@ -231,7 +234,7 @@ public class ProjetiHbaseRepository {
         table.put(p);
     }
 
-    private String createId(Projeti projeti) {
+    private String createId(Passage projeti) {
         return projeti.getCas().getTime() + projeti.getRidic().getCrp();
     }
 
@@ -239,18 +242,18 @@ public class ProjetiHbaseRepository {
         Table table = getTable();
         Scan scan = new Scan();
         FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 PROJETI_CAS_QUALIFIER.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(from.getTime())));
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 PROJETI_CAS_QUALIFIER.getBytes(), CompareFilter.CompareOp.LESS_OR_EQUAL, Bytes.toBytes(to.getTime())));
-        filterList.addFilter(new SingleColumnValueFilter(Projeti.COLUMN_FAMILY.getBytes(),
+        filterList.addFilter(new SingleColumnValueFilter(Passage.COLUMN_FAMILY.getBytes(),
                 RIDIC_CRP_QUALIFIER.getBytes(), CompareFilter.CompareOp.EQUAL, Bytes.toBytes(crp)));
         scan.setFilter(filterList);
         ResultScanner results = table.getScanner(scan);
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
         for (Result result : results) {
-            byte[] value = result.getValue(Projeti.COLUMN_FAMILY.getBytes(), PROJETI_NAJETO_QUALIFIER.getBytes());
+            byte[] value = result.getValue(Passage.COLUMN_FAMILY.getBytes(), PROJETI_NAJETO_QUALIFIER.getBytes());
             int najeto = Bytes.toInt(value);
             if (najeto < min)
                 min = najeto;

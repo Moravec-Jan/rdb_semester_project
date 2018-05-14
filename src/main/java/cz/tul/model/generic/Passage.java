@@ -1,13 +1,13 @@
 package cz.tul.model.generic;
 
 
-import cz.tul.mysql.model.Auto;
-import cz.tul.mysql.model.Brana;
-import cz.tul.mysql.model.Ridic;
+import cz.tul.mysql.model.Car;
+import cz.tul.mysql.model.Gate;
+import cz.tul.mysql.model.Driver;
 
 import java.sql.Timestamp;
 
-public interface Projeti {
+public interface Passage {
     String TABLE_NAME = "Projeti";
     String COLUMN_FAMILY = "data";
 
@@ -19,9 +19,9 @@ public interface Projeti {
 
     float getNapeti();
 
-    Ridic getRidic();
+    Driver getRidic();
 
-    Brana getBrana();
+    Gate getBrana();
 
-    Auto getAuto();
+    Car getAuto();
 }

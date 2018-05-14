@@ -2,15 +2,15 @@ package cz.tul.controller;
 
 import cz.tul.App;
 import cz.tul.model.generic.InvalidRecords;
-import cz.tul.model.ui.BranaTableEntity;
-import cz.tul.model.ui.RidicEntity;
+import cz.tul.model.ui.GateTableEntity;
+import cz.tul.model.ui.DriverEntity;
 import cz.tul.model.generic.GatePassageProjection;
 import cz.tul.service.DatabaseService;
 import cz.tul.task.ExportToFileTask;
 import cz.tul.task.ImportFileTask;
-import cz.tul.utils.BranaCvsCreator;
+import cz.tul.utils.GateCvsCreator;
 import cz.tul.utils.CsvCreator;
-import cz.tul.utils.RidicCvsCreator;
+import cz.tul.utils.DriverCvsCreator;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,7 +26,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.springframework.batch.core.configuration.xml.ExceptionElementParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -242,32 +241,32 @@ public class MainController {
     private void setGateTableData(List<GatePassageProjection> records) {
 
         table.getItems().clear();
-        ObservableList<BranaTableEntity> projeti = FXCollections.observableArrayList();
-        projeti.addAll(BranaTableEntity.createFromProjeti(records));
+        ObservableList<GateTableEntity> projeti = FXCollections.observableArrayList();
+        projeti.addAll(GateTableEntity.createFromProjeti(records));
 
         if (table.getColumns().size() != 6) {
             table.getColumns().clear();
-            TableColumn<BranaTableEntity, String> crpColumn = new TableColumn<>("CRP");
+            TableColumn<GateTableEntity, String> crpColumn = new TableColumn<>("CRP");
             crpColumn.setMinWidth(100);
             crpColumn.setCellValueFactory(new PropertyValueFactory<>("crp"));
 
-            TableColumn<BranaTableEntity, String> jmenoColumn = new TableColumn<>("Jméno");
+            TableColumn<GateTableEntity, String> jmenoColumn = new TableColumn<>("Jméno");
             jmenoColumn.setMinWidth(100);
             jmenoColumn.setCellValueFactory(new PropertyValueFactory<>("jmeno"));
 
-            TableColumn<BranaTableEntity, String> casColumn = new TableColumn<>("Čas");
+            TableColumn<GateTableEntity, String> casColumn = new TableColumn<>("Čas");
             casColumn.setMinWidth(130);
             casColumn.setCellValueFactory(new PropertyValueFactory<>("cas"));
 
-            TableColumn<BranaTableEntity, String> spzColumn = new TableColumn<>("Spz");
+            TableColumn<GateTableEntity, String> spzColumn = new TableColumn<>("Spz");
             spzColumn.setMinWidth(100);
             spzColumn.setCellValueFactory(new PropertyValueFactory<>("spz"));
 
-            TableColumn<BranaTableEntity, String> vyrobceColumn = new TableColumn<>("Výrobce");
+            TableColumn<GateTableEntity, String> vyrobceColumn = new TableColumn<>("Výrobce");
             vyrobceColumn.setMinWidth(100);
             vyrobceColumn.setCellValueFactory(new PropertyValueFactory<>("vyrobce"));
 
-            TableColumn<BranaTableEntity, String> typColumn = new TableColumn<>("Typ");
+            TableColumn<GateTableEntity, String> typColumn = new TableColumn<>("Typ");
             typColumn.setMinWidth(100);
             typColumn.setCellValueFactory(new PropertyValueFactory<>("typ"));
             table.getColumns().addAll(crpColumn, jmenoColumn, casColumn, spzColumn, vyrobceColumn, typColumn);
@@ -302,24 +301,24 @@ public class MainController {
 
     }
 
-    private void setDriverTableData(List<RidicEntity> data) {
+    private void setDriverTableData(List<DriverEntity> data) {
         if (data == null)
             return;
         table.getItems().clear();
-        ObservableList<RidicEntity> drivers = FXCollections.observableArrayList();
+        ObservableList<DriverEntity> drivers = FXCollections.observableArrayList();
         drivers.addAll(data);
 
         if (table.getColumns().size() != 3) {
             table.getColumns().clear();
-            TableColumn<RidicEntity, String> crpColumn = new TableColumn<>("CRP");
+            TableColumn<DriverEntity, String> crpColumn = new TableColumn<>("CRP");
             crpColumn.setMinWidth(100);
             crpColumn.setCellValueFactory(new PropertyValueFactory<>("crp"));
 
-            TableColumn<RidicEntity, String> jmenoColumn = new TableColumn<>("Jméno");
+            TableColumn<DriverEntity, String> jmenoColumn = new TableColumn<>("Jméno");
             jmenoColumn.setMinWidth(100);
             jmenoColumn.setCellValueFactory(new PropertyValueFactory<>("jmeno"));
 
-            TableColumn<RidicEntity, Integer> kmColumn = new TableColumn<>("Najeto");
+            TableColumn<DriverEntity, Integer> kmColumn = new TableColumn<>("Najeto");
             kmColumn.setMinWidth(130);
             kmColumn.setCellValueFactory(new PropertyValueFactory<>("km"));
 
@@ -338,9 +337,9 @@ public class MainController {
         if (file != null) {
             CsvCreator creator = null;
             if (table.getColumns().size() == 3) {
-                creator = new RidicCvsCreator();
+                creator = new DriverCvsCreator();
             } else {
-                creator = new BranaCvsCreator();
+                creator = new GateCvsCreator();
             }
             ExportToFileTask task = new ExportToFileTask(file, items, creator);
             exportProgressBar.progressProperty().bind(task.progressProperty());

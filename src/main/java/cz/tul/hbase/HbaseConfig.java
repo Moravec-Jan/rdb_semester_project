@@ -1,7 +1,7 @@
 package cz.tul.hbase;
 
 import cz.tul.model.generic.InvalidRecords;
-import cz.tul.model.generic.Projeti;
+import cz.tul.model.generic.Passage;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -41,9 +41,9 @@ public class HbaseConfig {
     }
 
     static void createScheme(Admin admin) throws IOException {
-        TableName tableName = TableName.valueOf(Projeti.TABLE_NAME);
+        TableName tableName = TableName.valueOf(Passage.TABLE_NAME);
         if (!admin.tableExists(tableName)) {
-            admin.createTable(new HTableDescriptor(tableName).addFamily(new HColumnDescriptor(Projeti.COLUMN_FAMILY)));
+            admin.createTable(new HTableDescriptor(tableName).addFamily(new HColumnDescriptor(Passage.COLUMN_FAMILY)));
         }
 
         TableName tableName2 = TableName.valueOf(InvalidRecords.TABLE_NAME);

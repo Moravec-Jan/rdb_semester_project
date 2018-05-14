@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class RidicEntity {
+public class DriverEntity {
 
     @Column(name = "najetoKm")
     int km;
@@ -14,7 +14,7 @@ public class RidicEntity {
     String crp;
     String jmeno;
 
-    public RidicEntity() {
+    public DriverEntity() {
     }
 
     public int getKm() {
@@ -29,7 +29,7 @@ public class RidicEntity {
         return jmeno;
     }
 
-    public RidicEntity(int km, String crp, String jmeno) {
+    public DriverEntity(int km, String crp, String jmeno) {
         this.km = km;
         this.crp = crp;
         this.jmeno = jmeno;

@@ -1,34 +1,34 @@
 package cz.tul.mongo.model;
 
-import cz.tul.model.generic.Projeti;
-import cz.tul.mysql.model.Auto;
-import cz.tul.mysql.model.Brana;
-import cz.tul.mysql.model.Ridic;
+import cz.tul.model.generic.Passage;
+import cz.tul.mysql.model.Car;
+import cz.tul.mysql.model.Gate;
+import cz.tul.mysql.model.Driver;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.sql.Timestamp;
 
-@Document(collection = Projeti.TABLE_NAME)
-public class ProjetiMongo implements Projeti{
+@Document(collection = Passage.TABLE_NAME)
+public class PassageMongo implements Passage {
 
     @Id
-    ProjetiMongoId id;
+    PassageMongoId id;
 
 
-    private Brana brana;
-    private Auto auto;
-    private Ridic ridic;
+    private Gate brana;
+    private Car auto;
+    private Driver ridic;
     private int najeto;
     private int benzin;
     private float napeti;
     private Timestamp cas;
 
-    public ProjetiMongo() {
+    public PassageMongo() {
     }
 
-    public ProjetiMongo(ProjetiMongoId id, Brana brana, Auto auto, Ridic ridic, int najeto, int benzin, float napeti) {
+    public PassageMongo(PassageMongoId id, Gate brana, Car auto, Driver ridic, int najeto, int benzin, float napeti) {
         this.id = id;
         this.brana = brana;
         this.auto = auto;
@@ -38,8 +38,8 @@ public class ProjetiMongo implements Projeti{
         this.napeti = napeti;
     }
 
-    public ProjetiMongo(Projeti projetiItem) {
-        this.id = new ProjetiMongoId(convertTimestampToDate(projetiItem.getCas()),projetiItem.getRidic().getCrp());
+    public PassageMongo(Passage projetiItem) {
+        this.id = new PassageMongoId(convertTimestampToDate(projetiItem.getCas()),projetiItem.getRidic().getCrp());
         this.brana = projetiItem.getBrana();
         this.auto = projetiItem.getAuto();
         this.ridic = projetiItem.getRidic();
@@ -48,19 +48,19 @@ public class ProjetiMongo implements Projeti{
         this.napeti = projetiItem.getNapeti();
     }
 
-    public Ridic getRidic() {
+    public Driver getRidic() {
         return ridic;
     }
 
-    public ProjetiMongoId getId() {
+    public PassageMongoId getId() {
         return id;
     }
 
-    public Brana getBrana() {
+    public Gate getBrana() {
         return brana;
     }
 
-    public Auto getAuto() {
+    public Car getAuto() {
         return auto;
     }
 
@@ -90,19 +90,19 @@ public class ProjetiMongo implements Projeti{
     }
 
 
-    public void setId(ProjetiMongoId id) {
+    public void setId(PassageMongoId id) {
         this.id = id;
     }
 
-    public void setBrana(Brana brana) {
+    public void setBrana(Gate brana) {
         this.brana = brana;
     }
 
-    public void setAuto(Auto auto) {
+    public void setAuto(Car auto) {
         this.auto = auto;
     }
 
-    public void setRidic(Ridic ridic) {
+    public void setRidic(Driver ridic) {
         this.ridic = ridic;
     }
 

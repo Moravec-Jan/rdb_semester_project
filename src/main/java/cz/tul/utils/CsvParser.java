@@ -1,11 +1,11 @@
 package cz.tul.utils;
 
 import com.opencsv.CSVReader;
-import cz.tul.model.generic.Projeti;
-import cz.tul.mysql.model.Auto;
-import cz.tul.mysql.model.Brana;
-import cz.tul.mysql.model.ProjetiMysql;
-import cz.tul.mysql.model.Ridic;
+import cz.tul.model.generic.Passage;
+import cz.tul.mysql.model.Car;
+import cz.tul.mysql.model.Gate;
+import cz.tul.mysql.model.PassageMysql;
+import cz.tul.mysql.model.Driver;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CsvParser implements Parser<Projeti> {
+public class CsvParser implements Parser<Passage> {
     boolean complete = false;
     CSVReader csvReader;
 
@@ -22,8 +22,8 @@ public class CsvParser implements Parser<Projeti> {
         return complete;
     }
 
-    public List<Projeti> parse(FileReader reader, long numberOfLines) {
-        List<Projeti> objects = new ArrayList<>();
+    public List<Passage> parse(FileReader reader, long numberOfLines) {
+        List<Passage> objects = new ArrayList<>();
         try {
             if (csvReader == null)
                 csvReader = new CSVReader(reader);
@@ -36,7 +36,7 @@ public class CsvParser implements Parser<Projeti> {
                     reader.close();
                     break;
                 }
-                Projeti mysqlProjeti = parseObjectFromLine(values);
+                Passage mysqlProjeti = parseObjectFromLine(values);
                 objects.add(mysqlProjeti);
             }
 
@@ -46,11 +46,11 @@ public class CsvParser implements Parser<Projeti> {
         return objects;
     }
 
-    private Projeti parseObjectFromLine(String[] values) {
-        Auto auto = new Auto(values[0], Integer.valueOf(values[1]), values[2], values[3]);
-        Ridic ridic = new Ridic(values[4], values[5]);
-        Brana brana = new Brana(values[11], Float.valueOf(values[12]), Float.valueOf(values[13]), Float.valueOf(values[15]), values[14]);
-        return new ProjetiMysql(convertUnixTimeToTimestamp(values[6]), Integer.valueOf(values[7]), Integer.valueOf(values[8]), Float.valueOf(values[9]), ridic, brana, auto);
+    private Passage parseObjectFromLine(String[] values) {
+        Car auto = new Car(values[0], Integer.valueOf(values[1]), values[2], values[3]);
+        Driver ridic = new Driver(values[4], values[5]);
+        Gate brana = new Gate(values[11], Float.valueOf(values[12]), Float.valueOf(values[13]), Float.valueOf(values[15]), values[14]);
+        return new PassageMysql(convertUnixTimeToTimestamp(values[6]), Integer.valueOf(values[7]), Integer.valueOf(values[8]), Float.valueOf(values[9]), ridic, brana, auto);
     }
 
     private Timestamp convertUnixTimeToTimestamp(String value) {

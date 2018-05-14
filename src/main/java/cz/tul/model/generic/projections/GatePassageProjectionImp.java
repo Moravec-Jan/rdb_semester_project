@@ -1,19 +1,18 @@
 package cz.tul.model.generic.projections;
 
-import cz.tul.mysql.model.Auto;
-import cz.tul.mysql.model.Ridic;
-import cz.tul.model.generic.GatePassageProjection;
+import cz.tul.mysql.model.Car;
+import cz.tul.mysql.model.Driver;
 
 import java.sql.Timestamp;
 
 public class GatePassageProjectionImp implements cz.tul.model.generic.GatePassageProjection, cz.tul.model.generic.GatePassageProjection.RidicCrpJmenoOnly, cz.tul.model.generic.GatePassageProjection.AutoSpzVyrobceTypOnly {
 
 
-    private Ridic ridic;
-    private Auto auto;
+    private Driver ridic;
+    private Car auto;
     private Timestamp timestamp;
 
-    public GatePassageProjectionImp(Ridic ridic, Auto auto, Timestamp timestamp) {
+    public GatePassageProjectionImp(Driver ridic, Car auto, Timestamp timestamp) {
         this.ridic = ridic;
         this.auto = auto;
         this.timestamp = timestamp;

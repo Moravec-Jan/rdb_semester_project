@@ -2,10 +2,8 @@ package cz.tul.service;
 
 import cz.tul.model.generic.GatePassageProjection;
 import cz.tul.model.generic.InvalidRecords;
-import cz.tul.model.generic.Projeti;
-import cz.tul.model.ui.RidicEntity;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import cz.tul.model.generic.Passage;
+import cz.tul.model.ui.DriverEntity;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -13,7 +11,7 @@ import java.util.List;
 public abstract class DatabaseService {
     public abstract void deleteAll();
 
-    public abstract boolean saveWholeRecord(Projeti projeti);
+    public abstract boolean saveWholeRecord(Passage projeti);
 
     public abstract void addInvalidRecords(int count);
 
@@ -21,5 +19,5 @@ public abstract class DatabaseService {
 
     public abstract List<GatePassageProjection> getByGate(String key);
 
-    public abstract List<RidicEntity> getDriversByKmWhoDidNotPassSatelliteGate(Timestamp from, Timestamp to, int km);
+    public abstract List<DriverEntity> getDriversByKmWhoDidNotPassSatelliteGate(Timestamp from, Timestamp to, int km);
 }

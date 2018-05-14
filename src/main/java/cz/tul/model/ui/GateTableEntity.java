@@ -5,7 +5,7 @@ import cz.tul.model.generic.GatePassageProjection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BranaTableEntity {
+public class GateTableEntity {
     private String crp;
     private String jmeno;
     private String cas;
@@ -14,7 +14,7 @@ public class BranaTableEntity {
     private String typ;
 
 
-    private BranaTableEntity(String crp, String jmeno, String cas, String spz, String vyrobce, String typ) {
+    private GateTableEntity(String crp, String jmeno, String cas, String spz, String vyrobce, String typ) {
         this.crp = crp;
         this.jmeno = jmeno;
         this.cas = cas;
@@ -47,10 +47,10 @@ public class BranaTableEntity {
         return typ;
     }
 
-    public static List<BranaTableEntity> createFromProjeti(List<GatePassageProjection> projeti) {
-        List<BranaTableEntity> entities = new ArrayList<>();
+    public static List<GateTableEntity> createFromProjeti(List<GatePassageProjection> projeti) {
+        List<GateTableEntity> entities = new ArrayList<>();
 
-        projeti.forEach(value -> entities.add(new BranaTableEntity(value.getRidic().getCrp(), value.getRidic().getJmeno(), value.getCas().toString(),value.getAuto().getSpz(),value.getAuto().getVyrobce(),value.getAuto().getTyp())));
+        projeti.forEach(value -> entities.add(new GateTableEntity(value.getRidic().getCrp(), value.getRidic().getJmeno(), value.getCas().toString(),value.getAuto().getSpz(),value.getAuto().getVyrobce(),value.getAuto().getTyp())));
         return entities;
     }
 }

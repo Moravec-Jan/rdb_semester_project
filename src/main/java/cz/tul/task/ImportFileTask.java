@@ -1,7 +1,7 @@
 package cz.tul.task;
 
-import cz.tul.model.generic.Projeti;
-import cz.tul.mysql.model.Brana;
+import cz.tul.model.generic.Passage;
+import cz.tul.mysql.model.Gate;
 import cz.tul.service.DatabaseService;
 import cz.tul.utils.CsvParser;
 import javafx.concurrent.Task;
@@ -49,7 +49,7 @@ public class ImportFileTask extends Task<Boolean> {
 
 
         long actualCount = 0L;
-        List<Projeti> loaded;
+        List<Passage> loaded;
         CsvParser parser = new CsvParser();
         FileReader reader = new FileReader(csv);
         while (!parser.isComplete()) {
@@ -68,12 +68,12 @@ public class ImportFileTask extends Task<Boolean> {
         return true;
     }
 
-    private void saveRecords(List<Projeti> records) {
+    private void saveRecords(List<Passage> records) {
         AtomicInteger invalidRecordCount = new AtomicInteger();
         if (records != null) {
             records.forEach(record -> {
                 if (validateCoordinates) {
-                    if (!Brana.validate(record.getBrana().getLongtitude(), record.getBrana().getLatitude())) {
+                    if (!Gate.validate(record.getBrana().getLongtitude(), record.getBrana().getLatitude())) {
                         invalidRecordCount.getAndIncrement();
                         return;
                     }

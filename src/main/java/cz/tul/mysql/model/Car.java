@@ -10,8 +10,8 @@ import javax.persistence.Transient;
 
 @Profile("mysql")
 @Entity
-@Table(name = Auto.TABLE_NAME)
-public class Auto implements Persistable<String> {
+@Table(name = Car.TABLE_NAME)
+public class Car implements Persistable<String> {
 
     static final String TABLE_NAME = "Auto";
 
@@ -25,10 +25,10 @@ public class Auto implements Persistable<String> {
     @Transient
     private boolean update;
 
-    public Auto() {
+    public Car() {
     }
 
-    public Auto(String spz, int barva, String vyrobce, String typ) {
+    public Car(String spz, int barva, String vyrobce, String typ) {
         this.spz = spz;
         this.barva = barva;
         this.vyrobce = vyrobce;

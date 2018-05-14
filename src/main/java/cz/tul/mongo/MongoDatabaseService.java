@@ -1,16 +1,16 @@
 package cz.tul.mongo;
 
 import cz.tul.model.generic.InvalidRecords;
-import cz.tul.mysql.model.Auto;
-import cz.tul.mysql.model.Brana;
+import cz.tul.model.generic.Passage;
+import cz.tul.mysql.model.Car;
+import cz.tul.mysql.model.Gate;
 import cz.tul.model.generic.GatePassageProjection;
-import cz.tul.model.generic.Projeti;
 import cz.tul.mongo.model.InvalidMongoRecords;
-import cz.tul.mongo.model.ProjetiMongo;
-import cz.tul.mysql.model.Ridic;
-import cz.tul.model.ui.RidicEntity;
+import cz.tul.mongo.model.PassageMongo;
+import cz.tul.mysql.model.Driver;
+import cz.tul.model.ui.DriverEntity;
 import cz.tul.mongo.repository.InvalidRecordsMongoRepository;
-import cz.tul.mongo.repository.ProjetiMongoRepository;
+import cz.tul.mongo.repository.PassageMongoRepository;
 import cz.tul.service.DatabaseService;
 import org.bson.Document;
 import org.codehaus.jettison.json.JSONArray;
@@ -31,7 +31,7 @@ import java.util.*;
 @Service
 public class MongoDatabaseService extends DatabaseService {
     @Autowired
-    ProjetiMongoRepository projetiMongoRepository;
+    PassageMongoRepository projetiMongoRepository;
 
     @Autowired
     InvalidRecordsMongoRepository invalidRecordsMongoRepository;
@@ -46,7 +46,7 @@ public class MongoDatabaseService extends DatabaseService {
     }
 
     @Override
-    public boolean saveWholeRecord(Projeti projeti) {
+    public boolean saveWholeRecord(Passage projeti) {
         if (!validateBrana(projeti.getBrana())) {
             return false;
         }
@@ -59,31 +59,31 @@ public class MongoDatabaseService extends DatabaseService {
 
 
 
-        projetiMongoRepository.save(new ProjetiMongo(projeti));
+        projetiMongoRepository.save(new PassageMongo(projeti));
         return true;
     }
 
-    private boolean validateRidic(Ridic ridic) {
-        Projeti found = projetiMongoRepository.findFirstByRidic_Crp(ridic.getCrp());
+    private boolean validateRidic(Driver ridic) {
+        Passage found = projetiMongoRepository.findFirstByRidic_Crp(ridic.getCrp());
         if (found == null)
             return true;
-        Ridic foundRidic = found.getRidic();
+        Driver foundRidic = found.getRidic();
         return foundRidic.getJmeno().equals(ridic.getJmeno());
     }
 
-    private boolean validateAuto(Auto auto) {
-        Projeti found = projetiMongoRepository.findFirstByAuto_Spz(auto.getSpz());
+    private boolean validateAuto(Car auto) {
+        Passage found = projetiMongoRepository.findFirstByAuto_Spz(auto.getSpz());
         if (found == null)
             return true;
-        Auto foundAuto = found.getAuto();
+        Car foundAuto = found.getAuto();
         return foundAuto.getTyp().equals(auto.getTyp()) && foundAuto.getVyrobce().equals(auto.getVyrobce()) && foundAuto.getBarva() == auto.getBarva();
     }
 
-    private boolean validateBrana(Brana brana) {
-        Projeti found = projetiMongoRepository.findFirstByBrana_Id(brana.getId());
+    private boolean validateBrana(Gate brana) {
+        Passage found = projetiMongoRepository.findFirstByBrana_Id(brana.getId());
         if (found == null)
             return true;
-        Brana foundBrana = found.getBrana();
+        Gate foundBrana = found.getBrana();
         return foundBrana.getCena() == brana.getCena()  && foundBrana.getTyp().equals(brana.getTyp());
     }
 
@@ -116,7 +116,7 @@ public class MongoDatabaseService extends DatabaseService {
     }
 
     @Override
-    public List<RidicEntity> getDriversByKmWhoDidNotPassSatelliteGate(Timestamp from, Timestamp to, int km) {
+    public List<DriverEntity> getDriversByKmWhoDidNotPassSatelliteGate(Timestamp from, Timestamp to, int km) {
         String fromString = convertTime(from);
         if (fromString == null) return null;
         String toString = convertTime(to);
@@ -129,16 +129,16 @@ public class MongoDatabaseService extends DatabaseService {
         return parseResult(commandResult);
     }
 
-    private List<RidicEntity> parseResult(Document commandResult) {
+    private List<DriverEntity> parseResult(Document commandResult) {
         String s = commandResult.toJson();
-        List<RidicEntity> drivers = new ArrayList<>();
+        List<DriverEntity> drivers = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONObject(s).getJSONObject("cursor").getJSONArray("firstBatch");
             JSONObject driver;
             int i = 0;
             while (!jsonArray.isNull(i)) {
                 driver = jsonArray.getJSONObject(i);
-                drivers.add(new RidicEntity(driver.getInt("najeto_km"), driver.getString("_id"), driver.getString("jmeno")));
+                drivers.add(new DriverEntity(driver.getInt("najeto_km"), driver.getString("_id"), driver.getString("jmeno")));
                 i++;
             }
         } catch (JSONException e) {

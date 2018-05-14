@@ -1,11 +1,11 @@
 package cz.tul.hbase.model;
 
-public class RidicHbase {
+public class DriverHbase {
     private String crp;
     private String rowId;
     private String jmeno;
 
-    public RidicHbase(String crp, String rowId, String jmeno) {
+    public DriverHbase(String crp, String rowId, String jmeno) {
         this.crp = crp;
         this.rowId = rowId;
         this.jmeno = jmeno;
@@ -27,7 +27,7 @@ public class RidicHbase {
         this.rowId = rowId;
     }
 
-    public String getJmeno() {
+    public String getName() {
         return jmeno;
     }
 
